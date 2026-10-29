@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Interactive NCERT Class 11 and 12 physics: full lessons, simulations, real-world examples, gamified practice and worked solutions.">
+<title>NCERT Physics Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: lab notebook on graph paper — sticky instrument bar, chapter index rail, workbench panel. */
+:root{
+  --bg:#edf0f4; --panel:#ffffff; --panel-2:#e2e7ee; --ink:#111a2c; --ink-2:#38445b; --ink-3:#66728a;
+  --grid:#d5dbe5; --line:#9ba6b9; --accent:#2440d4; --accent-deep:#172a92; --accent-soft:#dfe4ff;
+  --trace:#d9730d; --good:#13835a; --good-soft:#d8f1e6; --bad:#cf2f3e; --bad-soft:#fbe0e3; --pos:#cf2f3e; --neg:#2c69dc;
+  --paper-line:rgba(36,64,212,.06);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b1019; --panel:#131a27; --panel-2:#1b2435; --ink:#e7ecf5; --ink-2:#b4bfd2; --ink-3:#7f8aa1;
+  --grid:#232e43; --line:#4b5974; --accent:#8597ff; --accent-deep:#3346b8; --accent-soft:#1d2550;
+  --trace:#ffae4d; --good:#40cf8f; --good-soft:#123326; --bad:#ff6d77; --bad-soft:#3a1720; --pos:#ff6d77; --neg:#6ea4ff;
+  --paper-line:rgba(133,151,255,.05); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0b1019; --panel:#131a27; --panel-2:#1b2435; --ink:#e7ecf5; --ink-2:#b4bfd2; --ink-3:#7f8aa1;
+  --grid:#232e43; --line:#4b5974; --accent:#8597ff; --accent-deep:#3346b8; --accent-soft:#1d2550;
+  --trace:#ffae4d; --good:#40cf8f; --good-soft:#123326; --bad:#ff6d77; --bad-soft:#3a1720; --pos:#ff6d77; --neg:#6ea4ff;
+  --paper-line:rgba(133,151,255,.05); color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  background-image:linear-gradient(var(--paper-line) 1px,transparent 1px),linear-gradient(90deg,var(--paper-line) 1px,transparent 1px);background-size:24px 24px;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+sup,sub{font-size:.72em;line-height:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--grid)}
+.bar-in{display:flex;align-items:center;gap:14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1440px;margin:0 auto}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:inherit;min-width:0;overflow:hidden}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.02em;white-space:nowrap}
+.brand b i{font-style:normal;color:var(--accent)}
+.brand span{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.bar-sp{flex:1}
+.stat{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12.5px}
+.lvl{display:grid;gap:3px;min-width:120px}
+.lvl-top{display:flex;justify-content:space-between;gap:8px}
+.lvl-top b{color:var(--accent)}
+.meter{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .5s}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:var(--panel-2);font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+.chip.fire{color:var(--trace)}
+.btn.menu-btn{display:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);transition:background .15s,border-color .15s,transform .1s}
+.btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+:root[data-theme="dark"] .btn.primary{color:#0b1019}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#0b1019}}
+.btn.small{padding:5px 11px;font-size:13px}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--panel-2)}
+
+/* shell */
+.shell{display:grid;grid-template-columns:288px minmax(0,1fr);gap:0;max-width:1440px;margin:0 auto}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 57px);height:calc(100vh - 57px - env(safe-area-inset-top,0px));overflow:auto;border-right:1px solid var(--grid);background:color-mix(in srgb,var(--panel) 70%,transparent);padding:14px 12px 40px max(12px,env(safe-area-inset-left,0px))}
+.search{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 10px;font-size:14px}
+.cls-tabs{display:flex;gap:4px;margin:12px 0 6px;background:var(--panel-2);padding:3px;border-radius:8px}
+.cls-tabs button{flex:1;border:0;background:transparent;padding:6px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;color:var(--ink-2)}
+.cls-tabs button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.unit-h{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:14px 8px 4px}
+.ch-link{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;text-decoration:none;color:var(--ink-2);font-size:14px;line-height:1.3}
+.ch-link:hover{background:var(--panel-2);color:var(--ink)}
+.ch-link[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+.ch-link .n{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3)}
+.stars{font-size:11px;letter-spacing:1px;color:var(--line);white-space:nowrap}
+.stars b{color:var(--trace);font-weight:400}
+.rail-foot{margin-top:18px;display:grid;gap:6px}
+
+main{min-width:0;padding-block:24px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.page{max-width:1080px;margin:0 auto;display:grid;gap:22px}
+.card{background:var(--panel);border:1px solid var(--grid);border-radius:var(--r);padding:20px}
+
+/* home */
+.hero{display:grid;gap:14px}
+.hero h1{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1.02;letter-spacing:-.03em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{max-width:62ch;color:var(--ink-2);margin:0;font-size:16.5px}
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.ring-row{display:flex;gap:18px;align-items:center}
+.ring{--p:0;width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--panel-2) 0);display:grid;place-items:center;flex:none}
+.ring span{width:58px;height:58px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-family:var(--f-mono);font-size:14px;font-weight:700}
+.kv{display:grid;gap:2px}
+.kv b{font-family:var(--f-display);font-size:18px}
+.kv small{color:var(--ink-3)}
+.section-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.section-h h2{font-size:22px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.badge{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center;padding:10px;border:1px dashed var(--line);border-radius:9px;opacity:.55}
+.badge.on{opacity:1;border-style:solid;border-color:var(--trace);background:color-mix(in srgb,var(--trace) 8%,var(--panel))}
+.badge .ico{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:13px;background:var(--panel-2);color:var(--ink-2)}
+.badge.on .ico{background:var(--trace);color:#fff}
+.badge b{display:block;font-size:13.5px;line-height:1.2}
+.badge small{font-size:11.5px;color:var(--ink-3);line-height:1.25;display:block}
+.chap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.chap-card{display:grid;gap:6px;padding:14px;border:1px solid var(--grid);border-radius:9px;background:var(--panel);text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.chap-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.chap-card .top{display:flex;justify-content:space-between;align-items:center}
+.chap-card b{font-family:var(--f-display);font-size:16px;line-height:1.2;font-weight:700}
+
+/* chapter */
+.ch-head{display:grid;gap:10px}
+.ch-head h1{font-size:clamp(28px,4.4vw,44px);font-weight:800;line-height:1.05;letter-spacing:-.025em}
+.ch-head p{margin:0;max-width:68ch;color:var(--ink-2);font-size:16.5px}
+.ch-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--grid);overflow-x:auto;scrollbar-width:none}
+.tabs button{border:0;background:transparent;padding:10px 16px;cursor:pointer;font-weight:600;font-size:14.5px;color:var(--ink-3);border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.tabs button:hover{color:var(--ink)}
+.concepts{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.concept{padding:16px 18px;border:1px solid var(--grid);border-radius:var(--r);background:var(--panel)}
+.concept h3{font-size:16.5px;margin-bottom:6px;font-weight:700}
+.concept p{margin:0;color:var(--ink-2);font-size:14.5px}
+.formulas{display:grid;gap:0;border:1px solid var(--grid);border-radius:var(--r);background:var(--panel);overflow:hidden}
+.formulas h3{font-size:17px;padding:14px 18px;border-bottom:1px solid var(--grid);display:flex;justify-content:space-between;align-items:center}
+.f-row{display:grid;grid-template-columns:minmax(140px,240px) 1fr;gap:16px;padding:11px 18px;border-bottom:1px solid var(--grid);align-items:baseline}
+.f-row:last-child{border-bottom:0}
+.f-row span{font-size:13px;color:var(--ink-3)}
+.f-row div{font-family:var(--f-math);font-size:19px;line-height:1.45;min-width:0;overflow-wrap:anywhere}
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.app{padding:18px;border-radius:var(--r);background:var(--panel);border:1px solid var(--grid);display:grid;gap:8px;align-content:start}
+.app .tag{font-family:var(--f-mono);font-size:11px;color:var(--trace);letter-spacing:.08em;text-transform:uppercase}
+.app h3{font-size:17px}
+.app p{margin:0;color:var(--ink-2);font-size:14.5px}
+.nav-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+/* sim */
+.sim{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;border:1px solid var(--grid);border-radius:var(--r);background:var(--panel);overflow:hidden}
+.sim-stage{position:relative;min-width:0;background:var(--panel);border-right:1px solid var(--grid)}
+.sim-stage canvas{display:block;width:100%;touch-action:none;cursor:crosshair}
+.sim-pause{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:12px}
+.sim-side{padding:16px;display:grid;gap:14px;align-content:start;background:var(--panel-2);min-width:0}
+.sim-hint{margin:0;font-size:13.5px;color:var(--ink-2)}
+.sim-ctrls{display:grid;gap:12px}
+.ctl{display:grid;gap:4px}
+.ctl label{font-size:13px;font-weight:500}
+.ctl-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ctl output{font-family:var(--f-mono);font-size:12.5px;color:var(--accent);font-weight:700;white-space:nowrap}
+.ctl select{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:6px 8px;font-size:13.5px}
+.tog{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px}
+.tog input{width:16px;height:16px;accent-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent);height:22px;margin:0}
+.sim-read{margin:0;display:grid;gap:0;border-top:1px solid var(--line);padding-top:8px}
+.sim-read div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--grid);font-size:13px}
+.sim-read dt{color:var(--ink-3)}
+.sim-read dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+
+/* practice */
+.combo{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mcq{display:grid;gap:12px;padding:18px;border:1px solid var(--grid);border-radius:var(--r);background:var(--panel)}
+.mcq .qn{display:flex;gap:10px;align-items:baseline}
+.mcq .qn .mono{color:var(--ink-3);font-size:12px;flex:none}
+.mcq .qtext{font-weight:500;font-size:15.5px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.opt{text-align:left;border:1.5px solid var(--grid);background:var(--bg);border-radius:8px;padding:10px 12px;cursor:pointer;display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:baseline;font-size:14.5px;transition:border-color .12s}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.sol{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-soft);border-radius:0 8px 8px 0;font-size:14.5px}
+.sol b.v{display:block;font-family:var(--f-display);margin-bottom:2px}
+.sol.ok{border-color:var(--good);background:var(--good-soft)}
+.sol.no{border-color:var(--bad);background:var(--bad-soft)}
+.mcq.done-ok{border-color:color-mix(in srgb,var(--good) 45%,var(--grid))}
+.gen{display:grid;gap:14px;padding:20px;border:1.5px solid var(--accent);border-radius:var(--r);background:var(--panel)}
+.gen .q{font-size:16px}
+.ans-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans-row input{flex:1 1 160px;min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;padding:9px 12px;font-family:var(--f-mono);font-size:15px}
+.ans-row .unit{font-family:var(--f-mono);color:var(--ink-3)}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14.5px}
+.steps li::marker{font-family:var(--f-mono);color:var(--accent)}
+.small-note{font-size:12.5px;color:var(--ink-3);margin:0}
+
+/* blitz */
+.blitz-top{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.timer{font-family:var(--f-mono);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.big-score{font-family:var(--f-display);font-size:56px;font-weight:800;line-height:1;color:var(--accent)}
+.review{display:grid;gap:8px}
+.review div{padding:10px 12px;border-radius:8px;background:var(--panel-2);font-size:14px}
+
+/* toasts */
+.toasts{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;z-index:50;pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:9px;font-size:14px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.18);animation:pop .3s ease-out;max-width:300px}
+.toast .mono{color:var(--trace)}
+@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+
+
+/* lesson reader */
+.lesson{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px;align-items:start}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px);display:grid;gap:4px;max-height:calc(100vh - 100px);overflow:auto;padding-bottom:12px}
+.toc .eyebrow{margin-bottom:6px}
+.toc button{text-align:left;border:0;background:transparent;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px;line-height:1.3;color:var(--ink-2);display:grid;grid-template-columns:16px 1fr;gap:6px}
+.toc button:hover{background:var(--panel-2);color:var(--ink)}
+.toc button .ck{color:var(--line);font-family:var(--f-mono);font-size:12px}
+.toc button.done .ck{color:var(--good)}
+.read-meter{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--grid);border-radius:var(--r);background:var(--panel)}
+.read-meter .row{display:flex;justify-content:space-between;font-size:13px}
+.lesson-body{display:grid;gap:22px;min-width:0}
+.lead{font-size:17px;color:var(--ink-2);margin:0;max-width:70ch}
+.sec{background:var(--panel);border:1px solid var(--grid);border-radius:var(--r);padding:22px 24px;display:grid;gap:14px;scroll-margin-top:80px}
+.sec-h{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.sec-h h2{font-size:21px;font-weight:700}
+.sec-n{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);margin-right:8px}
+.xtag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:color-mix(in srgb,var(--trace) 14%,var(--panel));color:var(--trace);white-space:nowrap}
+.sec p{margin:0;max-width:72ch;font-size:15.5px;line-height:1.65}
+.sec ul{margin:0;padding-left:20px;display:grid;gap:6px;max-width:72ch;font-size:15px}
+.eqb{font-family:var(--f-math);font-size:20px;padding:12px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--grid);overflow-x:auto;line-height:1.5}
+.callout{border-radius:8px;padding:12px 16px;font-size:15px;max-width:72ch;line-height:1.55}
+.callout b.k{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.callout.simple{background:var(--accent-soft)}
+.callout.simple b.k{color:var(--accent)}
+.callout.warn{background:var(--bad-soft)}
+.callout.warn b.k{color:var(--bad)}
+.callout.tip{background:var(--good-soft)}
+.callout.tip b.k{color:var(--good)}
+.der{border:1px solid var(--grid);border-radius:8px;background:var(--bg)}
+.der summary{cursor:pointer;padding:10px 14px;font-weight:600;font-size:14.5px;list-style:none;display:flex;gap:8px;align-items:center}
+.der summary::-webkit-details-marker{display:none}
+.der summary::before{content:"▸";font-size:12px;color:var(--accent);transition:transform .15s}
+.der[open] summary::before{transform:rotate(90deg)}
+.der summary .eyebrow{color:var(--accent)}
+.der ol{margin:0;padding:0 18px 14px 38px;display:grid;gap:8px;font-size:15px;line-height:1.6}
+.der ol li::marker{font-family:var(--f-mono);color:var(--accent);font-size:13px}
+.exb{border:1.5px solid color-mix(in srgb,var(--trace) 55%,var(--grid));border-radius:8px;padding:14px 16px;display:grid;gap:10px}
+.exb .exq{font-size:15px}
+.exb .exq b.k{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--trace);margin-bottom:3px}
+.exb details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--accent);width:max-content}
+.exb ol{margin:8px 0 0;padding-left:22px;display:grid;gap:5px;font-size:14.5px}
+.exb .exa{margin-top:8px;font-weight:600}
+.tblw{overflow-x:auto;border:1px solid var(--grid);border-radius:8px}
+.tblw table{border-collapse:collapse;width:100%;font-size:14px;min-width:420px}
+.tblw th,.tblw td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--grid);vertical-align:top}
+.tblw th{background:var(--panel-2);font-weight:600;font-size:13px}
+.tblw tr:last-child td{border-bottom:0}
+.sec-foot{display:flex;justify-content:flex-end;gap:8px;align-items:center;padding-top:4px}
+.sec-foot .done-msg{font-size:13px;color:var(--good);font-weight:600}
+.recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.recap ul{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14.5px}
+@media (max-width:980px){.lesson{grid-template-columns:minmax(0,1fr)}.toc{display:none}.sec{padding:18px 16px}}
+@media (max-width:980px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;left:0;top:calc(env(safe-area-inset-top,0px) + 57px);bottom:0;width:min(320px,88vw);height:auto;z-index:30;background:var(--panel);transform:translateX(-102%);transition:transform .25s;box-shadow:8px 0 30px rgba(0,0,0,.15)}
+  .rail.open{transform:none}
+  .btn.menu-btn{display:inline-flex}
+  .sim{grid-template-columns:minmax(0,1fr)}
+  .sim-stage{border-right:0;border-bottom:1px solid var(--grid)}
+}
+@media (max-width:640px){
+  .brand span,#lvlName,#streakChip{display:none}
+  .lvl{min-width:64px}
+  .brand b{font-size:15.5px}
+  .f-row{grid-template-columns:1fr;gap:2px}
+  .bar-in{gap:8px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <button class="btn small menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="rail">Chapters</button>
+    <a class="brand" href="#home"><b>NCERT Physics <i>Lab</i></b><span>Class 11 · 12 · 2026–27 syllabus</span></a>
+    <div class="bar-sp"></div>
+    <div class="stat lvl" title="Level progress"><div class="lvl-top"><span id="lvlName">Lv 1</span><b id="xpTxt">0 XP</b></div><div class="meter"><i id="lvlBar" style="width:0%"></i></div></div>
+    <span class="chip fire" id="streakChip" title="Daily streak">0 day streak</span>
+    <a class="btn small primary" href="#blitz">Blitz</a>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Chapters">
+    <input class="search" id="search" type="search" placeholder="Search chapters, formulas…" aria-label="Search chapters">
+    <div class="cls-tabs" role="group" aria-label="Class">
+      <button type="button" data-cls="11" aria-pressed="true">Class 11</button>
+      <button type="button" data-cls="12" aria-pressed="false">Class 12</button>
+    </div>
+    <div id="chList"></div>
+    <div class="rail-foot">
+      <a class="btn small ghost" href="#home">Dashboard and badges</a>
+    </div>
+  </nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="sims.js"></script>
+<script src="lessons-11a.js"></script>
+<script src="lessons-11b.js"></script>
+<script src="lessons-11c.js"></script>
+<script src="lessons-12a.js"></script>
+<script src="lessons-12b.js"></script>
+<script src="lessons-12c.js"></script>
+<script>
+(function(){
+const CH = window.CHAPTERS, byId = Object.fromEntries(CH.map(c=>[c.id,c]));
+const $ = s=>document.querySelector(s);
+const main = $('#main');
+const today = ()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+
+/* ---------- progress store (this browser only) ---------- */
+const KEY='ncert-physics-lab-v1';
+let S = {xp:0, mcq:{}, gen:{}, labs:{}, read:{}, badges:{}, best:{}, streak:{days:0,last:''}, maxCombo:0};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+S.read=S.read||{};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+let combo=0, railCls=11, query='';
+
+function touchStreak(){
+  const t=today(); if(S.streak.last===t) return;
+  const y=new Date(); y.setDate(y.getDate()-1); const ys=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+  S.streak.days = S.streak.last===ys ? S.streak.days+1 : 1; S.streak.last=t; save(); checkBadges();
+}
+
+const LEVELS=['Observer','Experimenter','Analyst','Problem solver','Theorist','Researcher','Physicist','Laureate'];
+const lvlOf=xp=>{let L=1;while(xp>=75*L*(L+1))L++;return L;};
+function hud(){
+  const L=lvlOf(S.xp), lo=75*(L-1)*L, hi=75*L*(L+1);
+  $('#lvlName').textContent='Lv '+L+' · '+LEVELS[Math.min(L-1,LEVELS.length-1)];
+  $('#xpTxt').textContent=S.xp+' XP';
+  $('#lvlBar').style.width=((S.xp-lo)/(hi-lo)*100).toFixed(1)+'%';
+  $('#streakChip').textContent=(S.streak.days||0)+' day streak';
+}
+function toast(html){const t=document.createElement('div');t.className='toast';t.innerHTML=html;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),2600);}
+function addXP(n,why){ if(n<=0) return; const before=lvlOf(S.xp); S.xp+=Math.round(n); save(); hud(); toast(`<span class="mono">+${Math.round(n)} XP</span> ${why}`); const after=lvlOf(S.xp); if(after>before) toast(`Level up! You are now <span class="mono">Lv ${after}</span>, ${LEVELS[Math.min(after-1,LEVELS.length-1)]}`); }
+
+function stars(id){
+  const m=S.mcq[id]||{}, ch=byId[id], allRight=ch.mcq.every((_,i)=>m[i]&&m[i].ok);
+  return (S.labs[id]?1:0) + (allRight?1:0) + (allRight&&(S.gen[id]||0)>=3?1:0);
+}
+const starHTML=n=>`<span class="stars" aria-label="${n} of 3 stars"><b>${'★'.repeat(n)}</b>${'☆'.repeat(3-n)}</span>`;
+
+const BADGES=[
+  ['first','1st','First light','Answer your first question correctly'],
+  ['lab5','Lab','Lab regular','Experiment in 5 different labs'],
+  ['lab28','All','Every bench','Experiment in all 28 labs'],
+  ['combo5','×5','On a roll','5 correct answers in a row'],
+  ['combo10','×10','Unstoppable','10 correct answers in a row'],
+  ['calc10','∑10','Number cruncher','Solve 10 numerical problems'],
+  ['calc50','∑50','Calculator hands','Solve 50 numerical problems'],
+  ['triple','★★★','Mastered','Earn 3 stars in any chapter'],
+  ['c11','XI','Class 11 cleared','2+ stars in every Class 11 chapter'],
+  ['c12','XII','Class 12 cleared','2+ stars in every Class 12 chapter'],
+  ['blitz','⚡','Blitz 100','Score 100+ in a Blitz round'],
+  ['streak3','3d','Habit forming','Practise 3 days in a row'],
+  ['reader','Read','Chapter reader','Understand every section of one chapter'],
+  ['scholar','100','Scholar','Mark 100 lesson sections as understood'],
+];
+function checkBadges(){
+  const labs=Object.keys(S.labs).length, gens=Object.values(S.gen).reduce((a,b)=>a+b,0), anyOk=Object.values(S.mcq).some(m=>Object.values(m).some(x=>x.ok))||gens>0;
+  const cond={first:anyOk,lab5:labs>=5,lab28:labs>=28,combo5:S.maxCombo>=5,combo10:S.maxCombo>=10,calc10:gens>=10,calc50:gens>=50,
+    triple:CH.some(c=>stars(c.id)===3),c11:CH.filter(c=>c.cls===11).every(c=>stars(c.id)>=2),c12:CH.filter(c=>c.cls===12).every(c=>stars(c.id)>=2),
+    blitz:Object.values(S.best).some(v=>v>=100),streak3:(S.streak.days||0)>=3,
+    reader:CH.some(c=>{const L=window.LESSONS[c.id];return L&&L.sections.every((_,i)=>(S.read[c.id]||{})[i]);}),scholar:Object.values(S.read).reduce((a,m)=>a+Object.keys(m).length,0)>=100};
+  BADGES.forEach(([k,,name])=>{if(cond[k]&&!S.badges[k]){S.badges[k]=Date.now();save();toast(`Badge earned: <span class="mono">${name}</span>`);}});
+}
+function bumpCombo(ok){ if(ok){combo++; if(combo>S.maxCombo){S.maxCombo=combo;save();}} else combo=0; const el=$('#comboTxt'); if(el) el.textContent=combo?`Combo ×${combo}`:'Combo ×0'; checkBadges(); }
+const comboMult=()=>1+Math.min(combo,5)*.1;
+
+/* ---------- rail ---------- */
+function renderRail(){
+  document.querySelectorAll('.cls-tabs button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cls===railCls)));
+  const q=query.trim().toLowerCase(), cur=location.hash.slice(1);
+  const list=CH.filter(c=>q?(c.title+' '+c.unit+' '+c.concepts.map(x=>x.join(' ')).join(' ')+' '+c.formulas.map(x=>x.join(' ')).join(' ')+' '+((window.LESSONS[c.id]||{sections:[]}).sections.map(x=>x.t).join(' '))).toLowerCase().includes(q):c.cls===railCls);
+  let html='', lastUnit='';
+  list.forEach(c=>{ const u=(q?'Class '+c.cls+' · ':'')+c.unit; if(u!==lastUnit){html+=`<div class="unit-h">${u}</div>`;lastUnit=u;}
+    html+=`<a class="ch-link" href="#${c.id}" ${cur===c.id?'aria-current="page"':''}><span class="n">${String(c.n).padStart(2,'0')}</span><span>${c.title}</span>${starHTML(stars(c.id))}</a>`;});
+  $('#chList').innerHTML=html||'<p class="small-note" style="padding:8px">No chapter matches that search.</p>';
+}
+document.querySelectorAll('.cls-tabs button').forEach(b=>b.onclick=()=>{railCls=+b.dataset.cls;query='';$('#search').value='';renderRail();});
+$('#search').addEventListener('input',e=>{query=e.target.value;renderRail();});
+$('#menuBtn').onclick=()=>{const r=$('#rail'),o=!r.classList.contains('open');r.classList.toggle('open',o);$('#menuBtn').setAttribute('aria-expanded',String(o));};
+$('#chList').addEventListener('click',e=>{if(e.target.closest('a')){$('#rail').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false');}});
+
+/* ---------- views ---------- */
+let unmount=null;
+function cleanup(){ if(unmount){unmount();unmount=null;} if(blitzTimer){clearInterval(blitzTimer);blitzTimer=null;} }
+
+function viewHome(){
+  const tot=n=>CH.filter(c=>c.cls===n).reduce((a,c)=>a+stars(c.id),0), p11=tot(11)/42*100, p12=tot(12)/42*100;
+  const solved=Object.values(S.gen).reduce((a,b)=>a+b,0), mcqOk=Object.values(S.mcq).reduce((a,m)=>a+Object.values(m).filter(x=>x.ok).length,0);
+  const dayIdx=Math.floor(Date.now()/864e5)%CH.length, featured=CH[dayIdx];
+  const next=CH.find(c=>stars(c.id)<3)||CH[0];
+  main.innerHTML=`<div class="page">
+    <section class="hero">
+      <div class="eyebrow">Rationalised NCERT · CBSE 2026–27 · all 28 chapters</div>
+      <h1>Every chapter has a <em>lab bench</em>. Every problem has a worked solution.</h1>
+      <p>Read full, plain-language lessons with every derivation explained, play with a live simulation, see where the physics shows up in real life, then earn XP in practice rounds and timed Blitz challenges. Progress saves in this browser.</p>
+    </section>
+    <section class="card" style="display:grid;gap:14px">
+      <div class="section-h"><div><div class="eyebrow">Today's lab · Class ${featured.cls}, Chapter ${featured.n}</div><h2>${featured.title}</h2></div><a class="btn small" href="#${featured.id}">Open chapter</a></div>
+      <div id="heroSim"></div>
+    </section>
+    <section class="dash">
+      <div class="card ring-row"><div class="ring" style="--p:${p11.toFixed(0)}"><span>${p11.toFixed(0)}%</span></div><div class="kv"><b>Class 11</b><small>${tot(11)} of 42 stars</small></div></div>
+      <div class="card ring-row"><div class="ring" style="--p:${p12.toFixed(0)}"><span>${p12.toFixed(0)}%</span></div><div class="kv"><b>Class 12</b><small>${tot(12)} of 42 stars</small></div></div>
+      <div class="card kv" style="align-content:center"><b class="mono">${mcqOk} / 140</b><small>concept questions solved</small><b class="mono" style="margin-top:6px">${solved}</b><small>numerical problems solved</small></div>
+      <div class="card" style="display:grid;gap:10px;align-content:center"><div class="eyebrow">Pick up where you left off</div><b style="font-family:var(--f-display);font-size:18px">${next.title}</b><a class="btn primary" href="#${next.id}">Continue</a></div>
+    </section>
+    <section class="card" style="display:grid;gap:12px">
+      <div class="section-h"><h2>How to earn stars</h2><span class="small-note">Each chapter has three</span></div>
+      <div class="concepts">
+        <div class="concept"><h3>Read</h3><p>Every chapter has a complete lesson. Mark each section as understood for +5 XP.</p></div>
+        <div class="concept"><h3>★ Experiment</h3><p>Move any control in the chapter's lab. +10 XP the first time.</p></div>
+        <div class="concept"><h3>★★ Understand</h3><p>Get all five concept questions right. +20 XP on a first try, +5 after a retry. Streaks of correct answers add up to 50% bonus XP.</p></div>
+        <div class="concept"><h3>★★★ Master</h3><p>Also solve three generated numericals. Every one comes with fresh numbers and a step-by-step solution. +30 XP each.</p></div>
+      </div>
+    </section>
+    <section style="display:grid;gap:12px">
+      <div class="section-h"><h2>Badges</h2><span class="small-note">${Object.keys(S.badges).length} of ${BADGES.length} earned</span></div>
+      <div class="badges">${BADGES.map(([k,ico,n,d])=>`<div class="badge ${S.badges[k]?'on':''}"><div class="ico">${ico}</div><div><b>${n}</b><small>${d}</small></div></div>`).join('')}</div>
+    </section>
+    ${[11,12].map(n=>`<section style="display:grid;gap:12px"><div class="section-h"><h2>Class ${n}</h2><span class="small-note">14 chapters</span></div>
+      <div class="chap-grid">${CH.filter(c=>c.cls===n).map(c=>`<a class="chap-card" href="#${c.id}"><div class="top"><span class="eyebrow">Ch ${c.n}</span>${starHTML(stars(c.id))}</div><b>${c.title}</b><span class="small-note">${window.SIMS[c.sim].title}</span></a>`).join('')}</div></section>`).join('')}
+    <section class="card" style="display:grid;gap:10px">
+      <h2 style="font-size:18px">About the questions</h2>
+      <p class="small-note" style="font-size:13.5px">Chapters and topics follow the rationalised NCERT textbooks used for the 2026–27 CBSE session. Practice questions here are written fresh for this app to match each chapter's syllabus, rather than copied from the textbook's exercises, and every one has a full solution. Use them alongside your NCERT book.</p>
+      <div class="confirm" id="resetBox"><button class="btn small" type="button" id="resetBtn">Reset my progress</button></div>
+    </section>
+  </div>`;
+  unmount=window.mountSim($('#heroSim'),featured.sim,()=>labTouched(featured.id));
+  $('#resetBtn').onclick=()=>{$('#resetBox').innerHTML='<span>This clears all XP, stars and badges in this browser.</span><button class="btn small" id="rsY" type="button">Yes, reset</button><button class="btn small ghost" id="rsN" type="button">Cancel</button>';
+    $('#rsY').onclick=()=>{S={xp:0,mcq:{},gen:{},labs:{},read:{},badges:{},best:{},streak:{days:0,last:''},maxCombo:0};save();hud();route();};$('#rsN').onclick=()=>route();};
+}
+
+function labTouched(id){ if(!S.labs[id]){S.labs[id]=true;save();addXP(10,'for experimenting in the lab');touchStreak();checkBadges();renderRail();const sh=$('#chStars');if(sh)sh.innerHTML=starHTML(stars(id));} }
+
+const tabState={};
+function viewChapter(id){
+  const c=byId[id], i=CH.indexOf(c), prev=CH[i-1], next=CH[i+1];
+  railCls=c.cls; renderRail();
+  const tab=tabState[id]||'learn';
+  main.innerHTML=`<div class="page">
+    <header class="ch-head">
+      <div class="ch-meta"><span class="eyebrow">Class ${c.cls} · Chapter ${c.n} · ${c.unit}</span><span id="chStars">${starHTML(stars(id))}</span></div>
+      <h1>${c.title}</h1>
+      <p>${c.hook}</p>
+    </header>
+    <div class="tabs" role="tablist">
+      ${[['learn','Learn'],['lab','Lab'],['world','Real world'],['practice','Practice']].map(([k,l])=>`<button role="tab" type="button" data-tab="${k}" aria-selected="${k===tab}">${l}</button>`).join('')}
+    </div>
+    <div id="tabBody"></div>
+    <div class="nav-row">${prev?`<a class="btn" href="#${prev.id}">← ${prev.title}</a>`:'<span></span>'}${next?`<a class="btn" href="#${next.id}">${next.title} →</a>`:''}</div>
+  </div>`;
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tabState[id]=b.dataset.tab;document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));renderTab(c,b.dataset.tab);});
+  renderTab(c,tab);
+}
+
+function renderTab(c,tab){
+  if(unmount){unmount();unmount=null;}
+  const body=$('#tabBody');
+  if(tab==='learn'){
+    const Ls=window.LESSONS[c.id], rd=S.read[c.id]=S.read[c.id]||{}, n=Ls.sections.length;
+    const blk=b=>{const [k,a,x,y]=b;
+      if(k==='p') return a?`<p>${a}</p>`:'';
+      if(k==='simple') return `<aside class="callout simple"><b class="k">In simple words</b>${a}</aside>`;
+      if(k==='warn') return `<aside class="callout warn"><b class="k">Common mistake</b>${a}</aside>`;
+      if(k==='tip') return `<aside class="callout tip"><b class="k">Tip</b>${a}</aside>`;
+      if(k==='eq') return `<div class="eqb">${a}</div>`;
+      if(k==='list') return `<ul>${a.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+      if(k==='tbl') return `<div class="tblw"><table><thead><tr>${a.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${x.map(r=>`<tr>${r.map(d=>`<td>${d}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+      if(k==='der') return `<details class="der" open><summary><span class="eyebrow">Derivation</span>${a}</summary><ol>${x.map(i=>`<li>${i}</li>`).join('')}</ol></details>`;
+      if(k==='ex') return `<div class="exb"><div class="exq"><b class="k">Worked example</b>${a}</div><details><summary>Show solution</summary><ol>${x.map(i=>`<li>${i}</li>`).join('')}</ol><div class="exa">Answer: ${y}</div></details></div>`;
+      return '';};
+    const done=()=>Object.keys(rd).length;
+    body.innerHTML=`<div class="lesson">
+      <nav class="toc" aria-label="Sections"><div class="eyebrow">In this chapter</div>${Ls.sections.map((x,i)=>`<button type="button" data-go="${i}" class="${rd[i]?'done':''}"><span class="ck">${rd[i]?'✓':'○'}</span><span>${x.t}</span></button>`).join('')}
+        <button type="button" data-go="recap"><span class="ck">◆</span><span>Recap and exam focus</span></button></nav>
+      <div class="lesson-body">
+        <p class="lead">${Ls.intro}</p>
+        <div class="read-meter"><div class="row"><span>Sections understood</span><b class="mono" id="rdTxt">${done()} / ${n}</b></div><div class="meter"><i id="rdBar" style="width:${done()/n*100}%"></i></div><span class="small-note">Mark each section once you've understood it: +5 XP each. Sections tagged "Extra depth" go beyond the current board syllabus (as covered in reference books and for JEE/NEET); check with your teacher.</span></div>
+        ${Ls.sections.map((x,i)=>`<article class="sec" id="sec-${i}"><div class="sec-h"><h2><span class="sec-n">${c.cls===11?'XI':'XII'}.${c.n}.${i+1}</span>${x.t}</h2>${x.x?'<span class="xtag">Extra depth</span>':''}</div>${x.b.map(blk).join('')}
+          <div class="sec-foot">${rd[i]?'<span class="done-msg">✓ Understood</span>':`<button type="button" class="btn small" data-read="${i}">I've understood this</button>`}</div></article>`).join('')}
+        <section class="sec" id="sec-recap"><div class="sec-h"><h2>Recap and exam focus</h2></div>
+          <div class="recap"><div><div class="eyebrow" style="margin-bottom:8px">Key points</div><ul>${Ls.recap.map(r=>`<li>${r}</li>`).join('')}</ul></div><div><div class="eyebrow" style="margin-bottom:8px">Board exam focus</div><ul>${Ls.exam.map(r=>`<li>${r}</li>`).join('')}</ul></div></div></section>
+        <div class="concepts">${c.concepts.map(([t,d])=>`<article class="concept"><h3>${t}</h3><p>${d}</p></article>`).join('')}</div>
+        <section class="formulas"><h3>Formula sheet <span class="eyebrow">${c.formulas.length} results</span></h3>${c.formulas.map(([nm,f])=>`<div class="f-row"><span>${nm}</span><div>${f}</div></div>`).join('')}</section>
+        <div class="nav-row"><span class="small-note">Ready to see it move?</span><button class="btn primary" type="button" id="goLab">Open the lab →</button></div>
+      </div></div>`;
+    body.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const el=document.getElementById('sec-'+b.dataset.go);if(el)el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});});
+    body.querySelectorAll('[data-read]').forEach(b=>b.onclick=()=>{const i=+b.dataset.read;if(rd[i])return;rd[i]=true;save();addXP(5,'section understood');touchStreak();checkBadges();
+      b.outerHTML='<span class="done-msg">✓ Understood</span>';const t=body.querySelector(`.toc [data-go="${i}"]`);if(t){t.classList.add('done');t.querySelector('.ck').textContent='✓';}
+      $('#rdTxt').textContent=done()+' / '+n;$('#rdBar').style.width=(done()/n*100)+'%';});
+    $('#goLab').onclick=()=>document.querySelector('.tabs [data-tab="lab"]').click();
+  } else if(tab==='lab'){
+    body.innerHTML=`<div style="display:grid;gap:12px"><div class="section-h"><h2 style="font-size:20px">${window.SIMS[c.sim].title}</h2><span class="small-note">Drag sliders; some labs also respond to dragging on the canvas</span></div><div id="simHost"></div></div>`;
+    unmount=window.mountSim($('#simHost'),c.sim,()=>labTouched(c.id));
+  } else if(tab==='world'){
+    body.innerHTML=`<div class="apps">${c.apps.map(([t,d],i)=>`<article class="app"><span class="tag">Application ${i+1}</span><h3>${t}</h3><p>${d}</p></article>`).join('')}</div>`;
+  } else renderPractice(c,body);
+}
+
+function renderPractice(c,body){
+  const m=S.mcq[c.id]=S.mcq[c.id]||{};
+  body.innerHTML=`<div style="display:grid;gap:14px">
+    <div class="combo"><span class="chip fire" id="comboTxt">Combo ×${combo}</span><span class="small-note">Streaks of correct answers add up to +50% XP.</span></div>
+    <h2 style="font-size:20px">Concept check</h2>
+    <div id="mcqs" style="display:grid;gap:12px"></div>
+    <h2 style="font-size:20px;margin-top:8px">Numerical generator</h2>
+    <div id="genBox"></div>
+  </div>`;
+  const box=$('#mcqs');
+  c.mcq.forEach((q,i)=>{
+    const el=document.createElement('div');el.className='mcq';box.appendChild(el);
+    const paint=(picked)=>{
+      const rec=m[i], done=rec&&rec.ok;
+      el.className='mcq'+(done?' done-ok':'');
+      el.innerHTML=`<div class="qn"><span class="mono">Q${i+1}</span><div class="qtext">${q.q}</div></div>
+        <div class="opts">${q.o.map((o,j)=>`<button type="button" class="opt ${picked!==undefined||done?(j===q.a?'right':j===picked?'wrong':''):''}" data-j="${j}" ${picked!==undefined||done?'disabled':''}><span class="k">${'ABCD'[j]}</span><span>${o}</span></button>`).join('')}</div>
+        ${picked!==undefined||done?`<div class="sol ${(picked===q.a||done&&picked===undefined)?'ok':'no'}"><b class="v">${picked===undefined?'Solved':picked===q.a?'Correct':'Not quite'}</b>${q.s}</div>${picked!==undefined&&picked!==q.a?'<div><button type="button" class="btn small retry">Try again</button></div>':''}`:''}`;
+      el.querySelectorAll('.opt:not(:disabled)').forEach(b=>b.onclick=()=>{
+        const j=+b.dataset.j, ok=j===q.a, first=!m[i];
+        if(ok){ const already=m[i]&&m[i].ok; m[i]={ok:true,first:first}; save(); bumpCombo(true); if(!already) addXP((first?20:5)*comboMult(),first?'first-try answer':'after a retry'); touchStreak(); }
+        else { if(!m[i]) m[i]={ok:false,first:false}; save(); bumpCombo(false); }
+        paint(j); refreshStars(c.id);
+      });
+      const r=el.querySelector('.retry'); if(r) r.onclick=()=>paint(undefined);
+    };
+    paint(undefined);
+  });
+  renderGen(c,$('#genBox'));
+}
+function refreshStars(id){const sh=$('#chStars');if(sh)sh.innerHTML=starHTML(stars(id));renderRail();checkBadges();}
+
+function parseNum(s){ s=String(s).trim().replace(/,/g,'').replace(/\s+/g,'').replace(/[×x*]10\^?/i,'e').replace(/−/g,'-'); const v=parseFloat(s); return /^[-+]?\d*\.?\d+(e[-+]?\d+)?$/i.test(s)?v:NaN; }
+function close(a,b){return Math.abs(a-b)<=Math.max(Math.abs(b)*.02,1e-12);}
+
+function renderGen(c,host){
+  let g=c.gen(), tries=0, solved=false, shown=false;
+  const paint=(msg)=>{
+    host.innerHTML=`<div class="gen">
+      <div class="section-h"><span class="eyebrow">Fresh numbers every time · solved here: ${S.gen[c.id]||0}</span><span class="small-note">Answers within 2% count</span></div>
+      <div class="q">${g.q}</div>
+      <form class="ans-row" id="genForm"><input id="genIn" inputmode="decimal" autocomplete="off" placeholder="Your answer, e.g. 12.5 or 2.3e-5" aria-label="Your answer" ${solved||shown?'disabled':''}><span class="unit">${g.unit}</span>
+        <button class="btn primary" type="submit" ${solved||shown?'disabled':''}>Check</button>
+        <button class="btn" type="button" id="genShow">${solved||shown?'Solution shown':'Show solution'}</button>
+        <button class="btn ghost" type="button" id="genNew">New problem</button></form>
+      ${msg||''}
+      ${solved||shown?`<div><div class="eyebrow" style="margin-bottom:6px">Worked solution</div><ol class="steps">${g.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>`:''}
+    </div>`;
+    $('#genForm').onsubmit=e=>{e.preventDefault();const v=parseNum($('#genIn').value);if(isNaN(v)){paint('<p class="sol no">Enter a number. Use e for powers of ten, for example 3.6e-3.</p>');return;}
+      tries++;
+      if(close(v,g.ans)){solved=true;S.gen[c.id]=(S.gen[c.id]||0)+1;save();bumpCombo(true);addXP((tries===1?30:15)*comboMult(),'numerical solved');touchStreak();refreshStars(c.id);
+        paint(`<p class="sol ok"><b class="v">Correct</b>Answer: ${window.PHX.sci(g.ans,4)} ${g.unit}</p>`);}
+      else{bumpCombo(false);paint(`<p class="sol no"><b class="v">Not yet</b>${tries>=2?'Check units and powers of ten, or open the solution.':'Have another go.'}</p>`);setTimeout(()=>{const i=$('#genIn');if(i){i.value=String(v);i.focus();}},0);}};
+    $('#genShow').onclick=()=>{if(!solved){shown=true;bumpCombo(false);}paint(solved?'':`<p class="sol"><b class="v">Answer: ${window.PHX.sci(g.ans,4)} ${g.unit}</b>No XP this time. Try a new problem to earn it.</p>`);};
+    $('#genNew').onclick=()=>{g=c.gen();tries=0;solved=false;shown=false;paint();};
+  };
+  paint();
+}
+
+/* ---------- blitz ---------- */
+let blitzTimer=null;
+function viewBlitz(){
+  railCls=railCls; renderRail();
+  main.innerHTML=`<div class="page">
+    <header class="ch-head"><span class="eyebrow">Timed challenge · 90 seconds</span><h1>Blitz</h1><p>Mixed concept questions and quick numericals from across the syllabus. Correct answers score 10 points times your combo (up to ×5). Wrong answers break the combo.</p></header>
+    <div class="dash">${[['11','Class 11'],['12','Class 12'],['all','Both classes']].map(([k,l])=>`<div class="card" style="display:grid;gap:10px"><b style="font-family:var(--f-display);font-size:20px">${l}</b><span class="small-note">Best score: <span class="mono">${S.best[k]||0}</span></span><button class="btn primary" type="button" data-pool="${k}">Start</button></div>`).join('')}</div>
+  </div>`;
+  document.querySelectorAll('[data-pool]').forEach(b=>b.onclick=()=>runBlitz(b.dataset.pool));
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function runBlitz(pool){
+  const chs=CH.filter(c=>pool==='all'||String(c.cls)===pool);
+  let left=90, score=0, bc=0, log=[], cur=null;
+  const nextQ=()=>{const c=chs[Math.floor(Math.random()*chs.length)];
+    if(Math.random()<.65){const q=c.mcq[Math.floor(Math.random()*c.mcq.length)];const idx=shuffle(q.o.map((_,i)=>i));cur={type:'m',c,q,idx};}
+    else cur={type:'g',c,g:c.gen()};paint();};
+  const answer=(ok,detail)=>{ if(ok){bc++;score+=10*Math.min(bc,5);} else bc=0; log.push({ok,c:cur.c,detail}); nextQ(); };
+  const paint=()=>{
+    main.innerHTML=`<div class="page"><div class="blitz-top"><span class="timer ${left<=10?'low':''}" id="tm">${left}s</span><span class="chip">Score <b class="mono" id="sc">${score}</b></span><span class="chip fire">Combo ×${Math.min(bc,5)}</span><span class="small-note">${cur.c.title}</span></div>
+      <div class="${cur.type==='m'?'mcq':'gen'}" id="bq"></div></div>`;
+    const bq=$('#bq');
+    if(cur.type==='m'){bq.innerHTML=`<div class="qtext">${cur.q.q}</div><div class="opts">${cur.idx.map((j,k)=>`<button type="button" class="opt" data-j="${j}"><span class="k">${'ABCD'[k]}</span><span>${cur.q.o[j]}</span></button>`).join('')}</div>`;
+      bq.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.j===cur.q.a,{q:cur.q.q,s:cur.q.s}));}
+    else {bq.innerHTML=`<div class="q">${cur.g.q}</div><form class="ans-row" id="bf"><input id="bi" inputmode="decimal" autocomplete="off" placeholder="Answer" aria-label="Your answer"><span class="unit">${cur.g.unit}</span><button class="btn primary" type="submit">Submit</button><button class="btn ghost" type="button" id="skip">Skip</button></form>`;
+      $('#bi').focus();
+      $('#bf').onsubmit=e=>{e.preventDefault();const v=parseNum($('#bi').value);if(isNaN(v))return;answer(close(v,cur.g.ans),{q:cur.g.q,s:'<ol class="steps">'+cur.g.steps.map(s=>'<li>'+s+'</li>').join('')+'</ol>'});};
+      $('#skip').onclick=()=>answer(false,{q:cur.g.q,s:'<ol class="steps">'+cur.g.steps.map(s=>'<li>'+s+'</li>').join('')+'</ol>'});}
+  };
+  nextQ();
+  blitzTimer=setInterval(()=>{left--;const t=$('#tm');if(t){t.textContent=left+'s';t.classList.toggle('low',left<=10);} if(left<=0){clearInterval(blitzTimer);blitzTimer=null;finish();}},1000);
+  const finish=()=>{
+    const best=S.best[pool]||0, rec=score>best; if(rec){S.best[pool]=score;} save(); touchStreak(); addXP(score/2,'from Blitz'); checkBadges();
+    const right=log.filter(l=>l.ok).length;
+    main.innerHTML=`<div class="page">
+      <header class="ch-head"><span class="eyebrow">Blitz finished</span><div class="big-score">${score}</div><p>${right} of ${log.length} correct. ${rec?'New personal best!':'Best so far: '+best+'.'}</p></header>
+      <div class="nav-row"><button class="btn primary" type="button" id="again">Play again</button><a class="btn" href="#home">Dashboard</a></div>
+      <h2 style="font-size:20px">Review with solutions</h2>
+      <div class="review">${log.map((l,i)=>`<details ${l.ok?'':'open'}><summary style="cursor:pointer;padding:10px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--grid)"><span class="mono" style="color:${l.ok?'var(--good)':'var(--bad)'}">${l.ok?'✓':'✗'}</span> ${l.c.title}</summary><div style="margin-top:6px"><p style="margin:0 0 6px">${l.detail.q}</p>${l.detail.s}</div></details>`).join('')||'<p class="small-note">No questions answered.</p>'}</div>
+    </div>`;
+    $('#again').onclick=()=>runBlitz(pool);
+  };
+}
+
+/* ---------- router ---------- */
+function route(){
+  cleanup();
+  const h=location.hash.slice(1);
+  if(byId[h]) viewChapter(h); else if(h==='blitz') viewBlitz(); else viewHome();
+  renderRail(); window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+hud(); route();
+})();
+</script>
+
+</body>
+</html>
